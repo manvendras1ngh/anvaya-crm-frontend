@@ -266,7 +266,7 @@ export function EditLeadForm({ lead }: EditLeadFormProps) {
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    timeToClose: e.target.value ? parseInt(e.target.value) : "",
+                    timeToClose: parseInt(e.target.value),
                   }))
                 }
                 required
