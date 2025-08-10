@@ -19,10 +19,8 @@ export function AgentManagement() {
     sortOrder: "asc",
   });
 
-  // Find the agent by ID
   const agentData = salesAgentData.find((agent) => agent.id === params.id);
 
-  // Get leads assigned to this agent
   const agentLeads = useMemo(() => {
     if (!agentData) return [];
     return leadsData.filter((lead) => lead.salesAgent === agentData.name);
@@ -32,7 +30,6 @@ export function AgentManagement() {
   const filteredAndSortedLeads = useMemo(() => {
     let filtered = agentLeads;
 
-    // Apply filters
     if (filters.status !== "all") {
       filtered = filtered.filter((lead) => lead.status === filters.status);
     }
@@ -41,7 +38,6 @@ export function AgentManagement() {
       filtered = filtered.filter((lead) => lead.priority === filters.priority);
     }
 
-    // Apply sorting
     if (filters.sortBy === "timeToClose") {
       filtered = [...filtered].sort((a, b) => {
         if (filters.sortOrder === "asc") {
@@ -60,12 +56,12 @@ export function AgentManagement() {
     if (!agentData) return null;
 
     const totalLeads = agentLeads.length;
-    const newLeads = agentLeads.filter((lead) => lead.status === "new").length;
+    const newLeads = agentLeads.filter((lead) => lead.status === "New").length;
     const activeLeads = agentLeads.filter(
-      (lead) => lead.status !== "closed"
+      (lead) => lead.status !== "Closed"
     ).length;
     const closedLeads = agentLeads.filter(
-      (lead) => lead.status === "closed"
+      (lead) => lead.status === "Closed"
     ).length;
 
     return {
@@ -136,7 +132,7 @@ export function AgentManagement() {
           </div>
 
           {/* Agent Performance Stats */}
-          {/* {agentStats && (
+          {agentStats && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
                 <p className="text-2xl font-bold text-gray-900">
@@ -163,7 +159,7 @@ export function AgentManagement() {
                 <p className="text-sm text-gray-500">Conversion</p>
               </div>
             </div>
-          )} */}
+          )}
         </div>
       </div>
 

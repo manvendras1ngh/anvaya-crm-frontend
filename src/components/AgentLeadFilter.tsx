@@ -72,14 +72,14 @@ export function AgentLeadFilter({
           <Button
             variant={filters.status === "New" ? "default" : "outline"}
             size="sm"
-            onClick={() => updateFilter("status", "new")}
+            onClick={() => updateFilter("status", "New")}
           >
             New
           </Button>
           <Button
             variant={filters.status === "Contacted" ? "default" : "outline"}
             size="sm"
-            onClick={() => updateFilter("status", "contacted")}
+            onClick={() => updateFilter("status", "Contacted")}
           >
             Contacted
           </Button>
@@ -131,11 +131,11 @@ export function AgentLeadFilter({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="contacted">Contacted</SelectItem>
-                  <SelectItem value="qualified">Qualified</SelectItem>
-                  <SelectItem value="proposal-sent">Proposal Sent</SelectItem>
-                  <SelectItem value="closed">Closed</SelectItem>
+                  <SelectItem value="New">New</SelectItem>
+                  <SelectItem value="Contacted">Contacted</SelectItem>
+                  <SelectItem value="Qualified">Qualified</SelectItem>
+                  <SelectItem value="Proposal Sent">Proposal Sent</SelectItem>
+                  <SelectItem value="Closed">Closed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -154,9 +154,9 @@ export function AgentLeadFilter({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
                 </SelectContent>
               </Select>
             </div>
