@@ -16,37 +16,43 @@ export function LeadsStatusDistributionChart({
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Calculate closed and non-closed lead count
+    // Calculate leads count by status
     const statusCounts = leads.reduce((acc, lead) => {
-      if (lead.status === "Closed") {
-        acc["Closed"] = (acc["Closed"] || 0) + 1;
-      } else {
-        acc["Non Closed"] = (acc["Non Closed"] || 0) + 1;
-      }
-
+      acc[lead.status] = (acc[lead.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const labels = Object.keys(statusCounts);
     const data = Object.values(statusCounts);
+    const totalLeads = leads.length;
 
     if (chartRef.current) {
       chartRef.current.destroy();
     }
 
     const config: ChartConfiguration = {
-      type: "pie",
+      type: "bar",
       data: {
         labels,
         datasets: [
           {
-            label: "Total leads",
+            label: "Number of Leads",
             data,
             backgroundColor: [
-              "#FFC300", // yellow
-              "#8B5CF6", // Blue
+              "#3B82F6", // Blue
+              "#10B981", // Green
+              "#F59E0B", // Yellow
+              "#EF4444", // Red
+              "#8B5CF6", // Purple
             ],
-            hoverOffset: 4,
+            borderColor: [
+              "#2563EB",
+              "#059669",
+              "#D97706",
+              "#DC2626",
+              "#7C3AED",
+            ],
+            borderWidth: 1,
           },
         ],
       },
@@ -56,7 +62,7 @@ export function LeadsStatusDistributionChart({
         plugins: {
           title: {
             display: true,
-            text: `Total closed and non-closed leads`,
+            text: `Total Leads in Pipeline: ${totalLeads}`,
             font: {
               size: 16,
               weight: "bold",
@@ -64,6 +70,24 @@ export function LeadsStatusDistributionChart({
           },
           legend: {
             display: false,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+            },
+            title: {
+              display: true,
+              text: "Number of Leads",
+            },
+          },
+          x: {
+            title: {
+              display: true,
+              text: "Lead Status",
+            },
           },
         },
       },

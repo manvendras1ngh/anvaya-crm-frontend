@@ -1,56 +1,53 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Chart } from "chart.js/auto";
 import type { ChartConfiguration } from "chart.js/auto";
 import type { Lead } from "../utils/types";
+import { reportApi } from "@/services/api";
 
 interface LeadsPipelineChartProps {
   leads: Lead[];
 }
 
 export function LeadsPipelineChart({ leads }: LeadsPipelineChartProps) {
+  const [pipeline, setPipeline] = useState<Record<string, number>>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
+
+  const fetchLeadsInPipeline = async () => {
+    try {
+      const totalLeads = await reportApi.getTotalLeadsInPipeline();
+      setPipeline(totalLeads);
+    } catch (error) {
+      console.error("Error getting leads in pipeline");
+    }
+  };
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Calculate leads count by status
-    const statusCounts = leads.reduce((acc, lead) => {
-      acc[lead.status] = (acc[lead.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    fetchLeadsInPipeline();
+    if (!pipeline) return;
 
-    const labels = Object.keys(statusCounts);
-    const data = Object.values(statusCounts);
-    const totalLeads = leads.length;
+    const labels = ["Closed", "Non Closed"];
+    const data = Object.values(pipeline);
 
     if (chartRef.current) {
       chartRef.current.destroy();
     }
 
     const config: ChartConfiguration = {
-      type: "bar",
+      type: "pie",
       data: {
         labels,
         datasets: [
           {
-            label: "Number of Leads",
+            label: "Total leads",
             data,
             backgroundColor: [
-              "#3B82F6", // Blue
-              "#10B981", // Green
-              "#F59E0B", // Yellow
-              "#EF4444", // Red
-              "#8B5CF6", // Purple
+              "#FFC300", // yellow
+              "#8B5CF6", // Blue
             ],
-            borderColor: [
-              "#2563EB",
-              "#059669",
-              "#D97706",
-              "#DC2626",
-              "#7C3AED",
-            ],
-            borderWidth: 1,
+            hoverOffset: 4,
           },
         ],
       },
@@ -60,7 +57,7 @@ export function LeadsPipelineChart({ leads }: LeadsPipelineChartProps) {
         plugins: {
           title: {
             display: true,
-            text: `Total Leads in Pipeline: ${totalLeads}`,
+            text: `Total closed and non-closed leads`,
             font: {
               size: 16,
               weight: "bold",
@@ -68,24 +65,6 @@ export function LeadsPipelineChart({ leads }: LeadsPipelineChartProps) {
           },
           legend: {
             display: false,
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              stepSize: 1,
-            },
-            title: {
-              display: true,
-              text: "Number of Leads",
-            },
-          },
-          x: {
-            title: {
-              display: true,
-              text: "Lead Status",
-            },
           },
         },
       },
