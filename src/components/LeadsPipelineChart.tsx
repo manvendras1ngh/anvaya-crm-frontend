@@ -1,14 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Chart } from "chart.js/auto";
 import type { ChartConfiguration } from "chart.js/auto";
-import type { Lead } from "../utils/types";
 import { reportApi } from "@/services/api";
 
-interface LeadsPipelineChartProps {
-  leads: Lead[];
-}
-
-export function LeadsPipelineChart({ leads }: LeadsPipelineChartProps) {
+export function LeadsPipelineChart() {
   const [pipeline, setPipeline] = useState<Record<string, number>>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -23,10 +18,11 @@ export function LeadsPipelineChart({ leads }: LeadsPipelineChartProps) {
   };
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-
     fetchLeadsInPipeline();
-    if (!pipeline) return;
+  }, []);
+
+  useEffect(() => {
+    if (!canvasRef.current || !pipeline) return;
 
     const labels = ["Closed", "Non Closed"];
     const data = Object.values(pipeline);
@@ -77,7 +73,7 @@ export function LeadsPipelineChart({ leads }: LeadsPipelineChartProps) {
         chartRef.current.destroy();
       }
     };
-  }, [leads]);
+  }, [pipeline]);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
