@@ -90,15 +90,22 @@ export const agentApi = {
   },
 };
 
+interface ClosedLeadData {
+  id: string;
+  name: string;
+  salesAgent: string;
+  closedAt: string;
+}
+
 export const reportApi = {
-  getLeadsClosedLastWeek: async (): Promise<number> => {
+  getLeadsClosedLastWeek: async (): Promise<ClosedLeadData[]> => {
     const response = await api.get("/reports/last-week");
-    return response.data.data;
+    return response.data;
   },
 
-  getTotalLeadsInPipeline: async (): Promise<number> => {
+  getTotalLeadsInPipeline: async (): Promise<Record<string, number>> => {
     const response = await api.get("/reports/pipeline");
-    return response.data.data;
+    return response.data;
   },
 };
 
