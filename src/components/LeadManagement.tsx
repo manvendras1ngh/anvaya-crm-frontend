@@ -1,51 +1,72 @@
 import { useParams } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useDataContext from "@/contexts/DataContext";
 import { EditLeadForm } from "./EditLeadForm";
 import { v4 as uuid } from "uuid";
 
+import { leadApi } from "@/services/api";
+import type { Comment as CommentsType } from "@/utils/types";
+import toast from "react-hot-toast";
+
 export function LeadManagement() {
-  const { leadsData, commentsData, setCommentsData } = useDataContext();
+  const { leadsData, salesAgentData } = useDataContext();
   const params = useParams();
 
   const leadData = leadsData.find((lead) => lead.id === params.id);
-  const commentData = commentsData.filter(
-    (comment) => comment.lead.id === params.id
-  );
+  const salesAgentId = salesAgentData.find(
+    (agent) => agent.name === leadData?.salesAgent
+  )?.id;
 
+  const [addCommentLoading, setAddCommentLoading] = useState(false);
+  const [commentsData, setCommentsData] = useState<CommentsType[]>([]);
   const [message, setMessage] = useState("");
 
-  if (!leadData) return;
+  // get comments from db
+  useEffect(() => {
+    const fetchComment = async () => {
+      const leadId = params.id;
+      if (leadId) {
+        const res = await leadApi.getCommentsForLead(leadId);
+        if (res) {
+          setCommentsData(res);
+        }
+      }
+    };
+    fetchComment();
+  }, []);
+
+  if (!leadData || !salesAgentId) return;
+
   const { name, salesAgent, source, status, priority, timeToClose } = leadData;
 
-  const handleCommentAdd = () => {
+  // set comment to state and db
+  const handleCommentAdd = async () => {
     if (!message.trim() || !leadData) return;
-
-    const newComment = {
-      id: uuid(),
-      lead: {
-        id: leadData.id,
-        name: leadData.name,
-        email: leadData.email || "NA",
-        company: leadData.company || "NA",
-        status: leadData.status,
-        priority: leadData.priority,
-      },
-      author: {
+    try {
+      setAddCommentLoading(true);
+      const newComment = {
         id: uuid(),
-        name: leadData.salesAgent,
-        email: `${leadData.salesAgent
-          .toLowerCase()
-          .replace(" ", ".")}@company.com`,
-      },
-      commentText: message,
-      createdAt: new Date(),
-    };
+        author: leadData.salesAgent,
+        commentText: message,
+        createdAt: new Date(),
+      };
 
-    setCommentsData((prev) => [...prev, newComment]);
-    setMessage("");
+      const apiComment = {
+        commentText: message,
+        author: salesAgentId,
+      };
+      setCommentsData((prev) => [...prev, newComment]);
+
+      await leadApi.addCommentToLead(leadData.id, apiComment);
+    } catch (error) {
+      console.error("Error addding comment", error);
+      toast.error("Error adding your comment");
+    } finally {
+      setMessage("");
+      setAddCommentLoading(false);
+    }
   };
   return (
     <div className="p-6 space-y-6">
@@ -88,10 +109,10 @@ export function LeadManagement() {
           Comments Section
         </h2>
         <ul className="space-y-3 text-gray-700 list-disc pl-8">
-          {commentData.map((comment) => (
-            <li>
+          {commentsData.map((comment) => (
+            <li key={comment.id}>
               <span className="font-semibold">
-                {comment.author.name} - {comment.createdAt.toLocaleString()}
+                {comment.author} - {comment.createdAt.toLocaleString()}
               </span>
               <p>{comment.commentText}</p>
             </li>
@@ -104,7 +125,11 @@ export function LeadManagement() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <Button className="mt-2 cursor-pointer" onClick={handleCommentAdd}>
+          <Button
+            className="mt-2 cursor-pointer"
+            onClick={handleCommentAdd}
+            disabled={addCommentLoading || !message}
+          >
             Add Comment
           </Button>
         </div>
