@@ -8,7 +8,6 @@ import { LeadManagement } from "./components/LeadManagement";
 import { AgentManagement } from "./components/AgentManagement";
 import { DataContextProvider } from "./contexts/DataContext";
 import { Toaster } from "react-hot-toast";
-import AWTCPresentation from "./components/Presentation";
 
 function App() {
   return (
@@ -22,7 +21,6 @@ function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
         </Route>
-        <Route path="/presentation" element={<AWTCPresentation />} />
       </Routes>
       <Toaster position="top-right" />
     </DataContextProvider>
