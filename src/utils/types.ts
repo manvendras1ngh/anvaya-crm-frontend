@@ -54,15 +54,7 @@ export interface SalesAgent {
 
 export interface Comment {
   id: string;
-  lead: {
-    id: string;
-    name: string;
-    email: string;
-    company?: string;
-    status: string;
-    priority: LeadPriority;
-  };
-  author: SalesAgent;
+  author: string;
   commentText: string;
   createdAt: Date;
 }
