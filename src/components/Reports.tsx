@@ -2,6 +2,7 @@ import useDataContext from "@/contexts/DataContext";
 import { LeadsPipelineChart } from "./LeadsPipelineChart";
 import { LeadsStatusDistributionChart } from "./LeadsStatusDistributionChart";
 import { LeadsDistributionByAgentChart } from "./LeadsDistributionByAgentChart";
+import { LeadsClosedLastWeek } from "./LeadsClosedLastWeek";
 
 export function Reports() {
   const { leadsData, loading, error } = useDataContext();
@@ -50,6 +51,12 @@ export function Reports() {
             Leads Distribution
           </h2>
           <LeadsDistributionByAgentChart leads={leadsData} />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Leads Closed Last Week
+          </h2>
+          <LeadsClosedLastWeek />
         </div>
       </div>
     </div>
