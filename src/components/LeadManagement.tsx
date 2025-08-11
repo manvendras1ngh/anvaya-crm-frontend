@@ -39,7 +39,8 @@ export function LeadManagement() {
 
   if (!leadData || !salesAgentId) return;
 
-  const { name, salesAgent, source, status, priority, timeToClose } = leadData;
+  const { name, salesAgent, source, status, priority, timeToClose, tags } =
+    leadData;
 
   // set comment to state and db
   const handleCommentAdd = async () => {
@@ -101,6 +102,23 @@ export function LeadManagement() {
         <div className="flex justify-between">
           <span className="font-semibold">Time to Close:</span>
           <span>{timeToClose} Days</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-semibold">Tags:</span>
+          <div className="flex flex-wrap gap-1 max-w-[150px]">
+            {tags && tags.length > 0 ? (
+              tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex px-2 py-1 bg-blue-100 text-blue-900 text-xs rounded-md"
+                >
+                  {tag}
+                </span>
+              ))
+            ) : (
+              <span className="text-gray-400 italic">No tags</span>
+            )}
+          </div>
         </div>
       </div>
 
