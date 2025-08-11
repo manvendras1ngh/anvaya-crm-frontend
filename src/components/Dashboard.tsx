@@ -7,17 +7,16 @@ import { AddLeadForm } from "./AddLeadForm";
 import useDataContext from "@/contexts/DataContext";
 import { FilterBar } from "./FilterBar";
 import type { FilterState } from "./FilterBar";
+import { useLeadsQueryFilter } from "@/hooks/useLeadsQueryFilter";
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { leadsData, loading, error } = useDataContext();
+  const { leadsData, salesAgentData, loading, error } = useDataContext();
+  const { status, salesAgent, tags } = useLeadsQueryFilter();
 
   const [filters, setFilters] = useState<FilterState>({
-    status: "all",
     priority: "all",
-    salesAgent: "all",
     leadSource: "all",
-    tags: [],
     sortBy: "none",
     sortOrder: "asc",
   });
@@ -26,28 +25,26 @@ export function Dashboard() {
     let filtered = leadsData;
 
     // Apply filters
-    if (filters.status !== "all") {
-      filtered = filtered.filter((lead) => lead.status === filters.status);
+    if (status !== "all") {
+      filtered = filtered.filter((lead) => lead.status === status);
     }
 
     if (filters.priority !== "all") {
       filtered = filtered.filter((lead) => lead.priority === filters.priority);
     }
 
-    if (filters.salesAgent !== "all") {
-      filtered = filtered.filter(
-        (lead) => lead.salesAgent === filters.salesAgent
-      );
+    if (salesAgent !== "all") {
+      filtered = filtered.filter((lead) => lead.salesAgent === salesAgent);
     }
 
     if (filters.leadSource !== "all") {
       filtered = filtered.filter((lead) => lead.source === filters.leadSource);
     }
 
-    if (filters.tags.length > 0) {
+    if (tags.length > 0) {
       filtered = filtered.filter(
         (lead) =>
-          lead.tags && filters.tags.some((tag) => lead.tags!.includes(tag))
+          lead.tags && tags.some((tag) => lead.tags!.includes(tag))
       );
     }
 
@@ -74,13 +71,9 @@ export function Dashboard() {
     }
 
     return filtered;
-  }, [leadsData, filters]);
+  }, [leadsData, filters, status, salesAgent, tags]);
 
-  // Get unique sales agents and tags for filter options
-  const salesAgents = useMemo(() => {
-    return [...new Set(leadsData.map((lead) => lead.salesAgent))];
-  }, [leadsData]);
-
+  // Tags
   const availableTags = useMemo(() => {
     const tags = leadsData.flatMap((lead) => lead.tags || []);
     return [...new Set(tags)].filter((tag) => tag.trim() !== "");
@@ -137,7 +130,7 @@ export function Dashboard() {
       <FilterBar
         filters={filters}
         onFiltersChange={setFilters}
-        salesAgents={salesAgents}
+        salesAgents={salesAgentData}
         availableTags={availableTags}
       />
 

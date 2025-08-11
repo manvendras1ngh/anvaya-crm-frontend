@@ -8,14 +8,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Filter, SortAsc, SortDesc, X } from "lucide-react";
-import type { LeadStatus, LeadPriority, LeadSource } from "@/utils/types";
+import type {
+  LeadStatus,
+  LeadPriority,
+  LeadSource,
+  SalesAgent,
+} from "@/utils/types";
+import { useLeadsQueryFilter } from "@/hooks/useLeadsQueryFilter";
 
 export interface FilterState {
-  status: LeadStatus | "all";
   priority: LeadPriority | "all";
-  salesAgent: string | "all";
   leadSource: LeadSource | "all";
-  tags: string[];
   sortBy: "priority" | "timeToClose" | "none";
   sortOrder: "asc" | "desc";
 }
@@ -23,7 +26,7 @@ export interface FilterState {
 interface FilterBarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  salesAgents: string[];
+  salesAgents: SalesAgent[];
   availableTags: string[];
 }
 
@@ -33,6 +36,7 @@ export function FilterBar({
   salesAgents,
   availableTags,
 }: FilterBarProps) {
+  const { status, salesAgent, tags, setQueryFilter } = useLeadsQueryFilter();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const updateFilter = (key: keyof FilterState, value: any) => {
@@ -43,37 +47,36 @@ export function FilterBar({
   };
 
   const addTag = (tag: string) => {
-    if (!filters.tags.includes(tag)) {
-      updateFilter("tags", [...filters.tags, tag]);
+    if (!tags.includes(tag)) {
+      setQueryFilter({ status, salesAgent, tags: [...tags, tag] });
     }
   };
 
   const removeTag = (tag: string) => {
-    updateFilter(
-      "tags",
-      filters.tags.filter((t) => t !== tag)
-    );
+    setQueryFilter({
+      status,
+      salesAgent,
+      tags: tags.filter((t) => t !== tag),
+    });
   };
 
   const clearAllFilters = () => {
     onFiltersChange({
-      status: "all",
       priority: "all",
-      salesAgent: "all",
       leadSource: "all",
-      tags: [],
       sortBy: "none",
       sortOrder: "asc",
     });
+    setQueryFilter({ status: "all", salesAgent: "all", tags: [] });
   };
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (filters.status !== "all") count++;
+    if (status !== "all") count++;
     if (filters.priority !== "all") count++;
-    if (filters.salesAgent !== "all") count++;
+    if (salesAgent !== "all") count++;
     if (filters.leadSource !== "all") count++;
-    if (filters.tags.length > 0) count++;
+    if (tags.length > 0) count++;
     if (filters.sortBy !== "none") count++;
     return count;
   };
@@ -89,23 +92,29 @@ export function FilterBar({
             Quick Filters:
           </span>
           <Button
-            variant={filters.status === "all" ? "default" : "outline"}
+            variant={status === "all" ? "default" : "outline"}
             size="sm"
-            onClick={() => updateFilter("status", "all")}
+            onClick={() => setQueryFilter({ status: "all", salesAgent, tags })}
           >
             All
           </Button>
           <Button
-            variant={filters.status === "New" ? "default" : "outline"}
+            variant={status === "New" ? "default" : "outline"}
             size="sm"
-            onClick={() => updateFilter("status", "New")}
+            onClick={() => setQueryFilter({ status: "New", salesAgent, tags })}
           >
             New
           </Button>
           <Button
-            variant={filters.status === "Contacted" ? "default" : "outline"}
+            variant={status === "Contacted" ? "default" : "outline"}
             size="sm"
-            onClick={() => updateFilter("status", "Contacted")}
+            onClick={() =>
+              setQueryFilter({
+                status: "Contacted",
+                salesAgent,
+                tags,
+              })
+            }
           >
             Contacted
           </Button>
@@ -149,8 +158,14 @@ export function FilterBar({
                 Status
               </label>
               <Select
-                value={filters.status}
-                onValueChange={(value) => updateFilter("status", value)}
+                value={status}
+                onValueChange={(value) =>
+                  setQueryFilter({
+                    status: value as LeadStatus | "all",
+                    salesAgent,
+                    tags,
+                  })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -193,8 +208,10 @@ export function FilterBar({
                 Sales Agent
               </label>
               <Select
-                value={filters.salesAgent}
-                onValueChange={(value) => updateFilter("salesAgent", value)}
+                value={salesAgent}
+                onValueChange={(value) =>
+                  setQueryFilter({ status, salesAgent: value, tags })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -202,8 +219,8 @@ export function FilterBar({
                 <SelectContent>
                   <SelectItem value="all">All Agents</SelectItem>
                   {salesAgents.map((agent) => (
-                    <SelectItem key={agent} value={agent}>
-                      {agent}
+                    <SelectItem key={agent.id} value={agent.name}>
+                      {agent.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -242,10 +259,10 @@ export function FilterBar({
               {availableTags.map((tag) => (
                 <Button
                   key={tag}
-                  variant={filters.tags.includes(tag) ? "default" : "outline"}
+                  variant={tags.includes(tag) ? "default" : "outline"}
                   size="sm"
                   onClick={() =>
-                    filters.tags.includes(tag) ? removeTag(tag) : addTag(tag)
+                    tags.includes(tag) ? removeTag(tag) : addTag(tag)
                   }
                   className="h-8"
                 >
@@ -253,10 +270,10 @@ export function FilterBar({
                 </Button>
               ))}
             </div>
-            {filters.tags.length > 0 && (
+            {tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 <span className="text-sm text-gray-500">Selected tags:</span>
-                {filters.tags.map((tag) => (
+                {tags.map((tag) => (
                   <span
                     key={tag}
                     className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-md"
