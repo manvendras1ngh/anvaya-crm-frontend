@@ -24,7 +24,7 @@ export function LeadsPipelineChart() {
   useEffect(() => {
     if (!canvasRef.current || !pipeline) return;
 
-    const labels = ["Closed", "Non Closed"];
+    const labels = ["Non Closed", "Closed"];
     const data = Object.values(pipeline);
 
     if (chartRef.current) {
