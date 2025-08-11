@@ -45,14 +45,6 @@ export function LeadsStatusDistributionChart({
               "#EF4444", // Red
               "#8B5CF6", // Purple
             ],
-            borderColor: [
-              "#2563EB",
-              "#059669",
-              "#D97706",
-              "#DC2626",
-              "#7C3AED",
-            ],
-            borderWidth: 1,
           },
         ],
       },
