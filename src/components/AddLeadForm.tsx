@@ -23,12 +23,12 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import type { LeadPriority, LeadSource, LeadStatus } from "@/utils/types";
 import useDataContext from "@/contexts/DataContext";
 
 export function AddLeadForm() {
-  const { salesAgentData, refreshData } = useDataContext();
+  const { salesAgentData, leadsData, refreshData } = useDataContext();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,9 +40,15 @@ export function AddLeadForm() {
     source: "",
     salesAgent: "",
     status: "",
+    tags: [] as string[],
     timeToClose: 1,
     priority: "",
   });
+
+  //available tags from existing leads
+  const availableTags = Array.from(
+    new Set(leadsData.flatMap((lead) => lead.tags || []))
+  ).filter((tag) => tag.trim() !== "");
 
   const [errors, setErrors] = useState({
     name: false,
@@ -80,7 +86,6 @@ export function AddLeadForm() {
     try {
       const leadData = {
         ...formData,
-        tags: [],
         source: formData.source as LeadSource,
         status: formData.status as LeadStatus,
         priority: formData.priority as LeadPriority,
@@ -99,6 +104,7 @@ export function AddLeadForm() {
         source: "",
         salesAgent: "",
         status: "",
+        tags: [],
         timeToClose: 1,
         priority: "",
       });
@@ -307,6 +313,86 @@ export function AddLeadForm() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Tags Multiselect */}
+            <div className="grid gap-3">
+              <Label htmlFor="tags">Tags (optional - max 3)</Label>
+              <div className="space-y-2">
+                {/* Available Tags to Select */}
+                {availableTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {availableTags.map((tag) => {
+                      const isSelected = formData.tags.includes(tag);
+                      const isDisabled =
+                        !isSelected && formData.tags.length >= 3;
+
+                      return (
+                        <Button
+                          key={tag}
+                          type="button"
+                          variant={isSelected ? "default" : "outline"}
+                          size="sm"
+                          disabled={isDisabled}
+                          onClick={() => {
+                            if (isSelected) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                tags: prev.tags.filter((t) => t !== tag),
+                              }));
+                            } else if (formData.tags.length < 3) {
+                              setFormData((prev) => ({
+                                ...prev,
+                                tags: [...prev.tags, tag],
+                              }));
+                            }
+                          }}
+                          className="h-8"
+                        >
+                          {tag}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Selected Tags Display */}
+                {formData.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2 p-2 bg-gray-50 rounded-md">
+                    <span className="text-sm text-gray-600">Selected:</span>
+                    {formData.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-md"
+                      >
+                        {tag}
+                        <X
+                          className="h-3 w-3 cursor-pointer hover:text-red-600"
+                          onClick={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              tags: prev.tags.filter((t) => t !== tag),
+                            }));
+                          }}
+                        />
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {availableTags.length === 0 && (
+                  <p className="text-sm text-gray-500">
+                    No tags available. Tags will appear here once leads with
+                    tags are created.
+                  </p>
+                )}
+
+                {formData.tags.length >= 3 && (
+                  <p className="text-sm text-amber-600">
+                    Maximum 3 tags allowed.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           <DialogFooter>
