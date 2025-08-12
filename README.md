@@ -21,7 +21,7 @@ A modern Customer Relationship Management system built with React and TypeScript
 - **TypeScript** - Type safety
 - **React Router DOM** - Routing
 - **Tailwind CSS** - Styling
-- **Radix UI** - UI components
+- **Shadcn UI** - UI components
 - **Lucide React** - Icons
 
 ### Build Tools
@@ -67,3 +67,9 @@ A modern Customer Relationship Management system built with React and TypeScript
 - `npm run build` - Build for production
 - `npm run lint` - Run ESLint
 - `npm run preview` - Preview production build
+
+## Connect
+
+- **Website**: [manavsingh.in](https://manavsingh.in)
+- **LinkedIn**: [manvendras1ngh](https://www.linkedin.com/in/manvendras1ngh/)
+- **Email**: [007singhmanvendra@gmail.com](mailto:007singhmanvendra@gmail.com)
